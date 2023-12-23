@@ -34,11 +34,27 @@ typedef struct
 
 #pragma pack(pop)
 
-int extractRarContents(const BYTE *dataBuffer, unsigned int bufferSize)
+int Rar4ListContents(const BYTE *dataBuffer, unsigned int bufferSize)
 {
     int numberOfFiles = 0;
     SetConsoleOutputCP(1251);
     SetConsoleCP(1251);
+
+    // Проверить сигнатуру файла
+    if (memcmp(dataBuffer, RarSignature, sizeof(RarSignature)) != 0)
+    {
+        cout << "Ошибка: Некорректная сигнатура архива." << endl;
+        return -1;
+    }
+
+    // Отступить от начала файла на длину сигнатуры (7 байт)
+    unsigned int fileOffset = sizeof(RarSignature);
+
+    // Цикл по архиву
+    while (fileOffset < bufferSize)
+    {
+
+    }
 
     return numberOfFiles;
 }
@@ -74,7 +90,7 @@ int main()
     if (readOk && bytesRead == fileSize)
     {
      // Файл успешно считан
-    int numberOfFiles = extractRarContents(dataBuffer.data(), dataBuffer.size());
+    int numberOfFiles = Rar4ListContents(dataBuffer.data(), dataBuffer.size());
     cout << "Всего файлов в архиве: " << numberOfFiles << endl;
     }
 
