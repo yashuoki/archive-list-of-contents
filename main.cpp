@@ -40,7 +40,7 @@ int Rar4ListContents(const BYTE *dataBuffer, unsigned int bufferSize)
     SetConsoleOutputCP(1251);
     SetConsoleCP(1251);
 
-    // Проверить сигнатуру файла
+   // Проверить сигнатуру файла
     if (memcmp(dataBuffer, RarSignature, sizeof(RarSignature)) != 0)
     {
         cout << "Ошибка: Некорректная сигнатура архива." << endl;
@@ -53,7 +53,41 @@ int Rar4ListContents(const BYTE *dataBuffer, unsigned int bufferSize)
     // Цикл по архиву
     while (fileOffset < bufferSize)
     {
+        // Получаем указатель на заголовок текущей записи
+        RarVolumeHeaderFormat *volumeHeader = (RarVolumeHeaderFormat*)&dataBuffer[fileOffset];
 
+        // Проверяем тип записи.
+        if (volumeHeader->header_type == 0x73)
+        {
+            // MAIN_HEAD, пропускаем
+            fileOffset += volumeHeader->header_size;
+        }
+        else if (volumeHeader->header_type == 0x74)
+        {
+            // FILE_HEAD, выводим имя файла
+            const FILE_HEAD *fileHeader = (FILE_HEAD*) &dataBuffer[fileOffset + sizeof(RarVolumeHeaderFormat)];
+
+            // Имя файла следует сразу после заголовка FILE_HEAD
+            string fileName((char*) &dataBuffer[fileOffset + sizeof(FILE_HEAD)+sizeof(RarVolumeHeaderFormat)], fileHeader->NameSize);
+
+            // Выводим имя файла
+            cout << "Имя файла: " << fileName << endl;
+            numberOfFiles++;
+
+            // Запись состоит из заголовка и упакованных данных
+            fileOffset += volumeHeader->header_size;
+            fileOffset += fileHeader->PackSize;
+        }
+        else if (volumeHeader->header_type == 0x7B)
+        {
+            // Штатное завершение архива
+            break;
+        }
+        else
+        {
+            // Другие виды заголовков не обрабатываются и инициируют завершение обработки
+            break;
+        }
     }
 
     return numberOfFiles;
