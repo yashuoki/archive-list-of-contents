@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1703320933 source:d:\Рабочий стол\дистант\помойка урфу\ИАСБ\ЯзИМетПРогр\zadaniya\Оглавление архива\main.cpp
+	<iostream>
+	<vector>
+	<windows.h>
+	<locale.h>
+
